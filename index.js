@@ -62,18 +62,19 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
-const generateId = () => {
+/*const generateId = () => {
   const maxId = persons.length > 0
-  ? Math.max(...persons.map(n => n.id))
+  ? Math.random(...persons.map(n => n.id))
   : 0
   return maxId + 1
-}
+}*/
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
  
   const person = {
-    id: generateId(),  
+    //id: generateId(), 
+    id: Math.floor(Math.random() * 100), 
     name: body.name,
     number: body.number,
   
