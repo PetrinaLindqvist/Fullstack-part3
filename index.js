@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
+const { response } = require('express')
 
 app.use(express.json())
 app.use(cors())
@@ -23,7 +25,7 @@ app.use(morgan(
 let persons = [
       { 
         id: 1, 
-        name: "Arto Hemmas", 
+        name: "Arto Hellas", 
         number: "040-123456"
         
       },
@@ -48,6 +50,9 @@ let persons = [
 ]
 app.get('/api/persons/', (req, res) => {
   res.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons.map(person => person.toJSON()))
+  })
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -79,12 +84,6 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
-/*const generateId = () => {
-  const maxId = persons.length > 0
-  ? Math.random(...persons.map(n => n.id))
-  : 0
-  return maxId + 1
-}*/
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
@@ -101,7 +100,6 @@ app.post('/api/persons', (req, res) => {
   }
  
   const person = {
-    //id: generateId(), 
     id: Math.floor(Math.random() * 100), 
     name: body.name,
     number: body.number,
