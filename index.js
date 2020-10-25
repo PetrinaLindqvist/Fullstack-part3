@@ -4,6 +4,7 @@ const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
+const { update } = require('./models/person')
 //const { response } = require('express')
 
 app.use(express.json())
@@ -84,13 +85,30 @@ app.get('/api/persons/:id', (req, res, next) => {
   
 
 app.get('/info', (req, res) => {
-    const info = `Phonebook has info for ${persons.length} people`
+   persons.find({}).then(people => {
+    const info = `Phonebook has info for ${people.length} people`
     const time = Date()
 
     res.send(`<p>${info}</p><p>${time}</p>`)
-
+   })
 
 })
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+   Person.findByIdAndUpdate(req.params.id, person, { new: true})
+   .then(Personupdate => {
+     res.json(Personupdate)
+   })
+   .catch(error => next(error))
+})
+
+
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
   .then(result => {
@@ -103,17 +121,6 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
-
-  /*if(!body.name || !body.number) {
-    return res.status(400).json({
-      error: 'missing content'
-    })
-  }
-  if (!persons.every(person => person.name !== body.name)) {
-      return res.status(400).json({
-        error: 'name must be unique'
-      })
-  }*/
 
   if (body.name === undefined) {
     return res.status(400).json({ error: 'Missing name!'})
@@ -149,6 +156,12 @@ const errorHandler = (error, req, res, next) => {
   }
 
   app.use(errorHandler)
+
+const unknownEndpoint = (req, res) => {
+  res.status(400).send({ error: 'unknown endpoint'})
+}
+
+app.use(unknownEndpoint)
 
 const PORT = process.env.PORT 
 app.listen(PORT, () => {
