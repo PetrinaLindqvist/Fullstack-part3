@@ -119,8 +119,11 @@ app.delete('/api/persons/:id', (req, res, next) => {
 })
 
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
+  if (body.content === undefined) {
+    return res.status(400).json({ error: 'Missing content!'})
+  }
 
   if (body.name === undefined) {
     return res.status(400).json({ error: 'Missing name!'})
@@ -138,8 +141,9 @@ app.post('/api/persons', (req, res) => {
 })
 
 person.save().then(personSaved => {
-  res.json(personSaved)
+  res.json(personSaved.toJSON())
 })
+ .catch(error => next(error))
 })
 
 /*persons = persons.concat(person)
