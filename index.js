@@ -4,8 +4,7 @@ const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
-const { update } = require('./models/person')
-//const { response } = require('express')
+
 
 app.use(express.json())
 app.use(cors())
@@ -52,26 +51,15 @@ let persons = [
       }
 ]
 app.get('/api/persons/', (req, res) => {
-  //res.json(persons)
   Person.find({}).then(persons => {
     res.json(persons.map(person => person.toJSON()))
   })
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-    /*const id = Number(req.params.id)
-    const person = persons.find(person => person.id === id)
-    if(person)
-    {
-      res.json(person)
-    }
-    else
-    {
-      res.status(404).end()
-    }*/
     Person.findById(req.params.id)
       .then(person => {
-        if (person){
+        if (person) {
            res.json(person)
            }
              else
@@ -101,7 +89,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     name: body.name,
     number: body.number,
   }
-   Person.findByIdAndUpdate(req.params.id, person, { new: true})
+   Person.findByIdAndUpdate(req.params.id, person, { new: true, runValidators: true })
    .then(Personupdate => {
      res.json(Personupdate)
    })
@@ -121,9 +109,6 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.post('/api/persons', (req, res, next) => {
   const body = req.body
-  if (body.content === undefined) {
-    return res.status(400).json({ error: 'Missing content!'})
-  }
 
   if (body.name === undefined) {
     return res.status(400).json({ error: 'Missing name!'})
@@ -133,7 +118,7 @@ app.post('/api/persons', (req, res, next) => {
     return res.status(400).json({ error: 'Missing number!'})
   }
 
-  const person = new Person({
+  const person = new Person ({
     id: Math.floor(Math.random() * 100), 
     name: body.name,
     number: body.number,
@@ -146,14 +131,13 @@ person.save().then(personSaved => {
  .catch(error => next(error))
 })
 
-/*persons = persons.concat(person)
-res.json(person)
 
-})*/
 const errorHandler = (error, req, res, next) => {
   console.error(error.message)
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id'})
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
   }
   next(error)
 
