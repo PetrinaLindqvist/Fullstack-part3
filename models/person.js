@@ -4,7 +4,7 @@ const uniqueValidator = require('mongoose-unique-validator')
 console.log('connecting to', url)
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
-  .then(result => {
+  .then(() => {
     console.log('connected to MongoDB')
   })
   .catch((error) => {
@@ -16,15 +16,15 @@ const personSchema = new mongoose.Schema({
     type: String,
     minlength: 3,
     unique: true,
-},
+  },
   number: {
     type: String,
     minlength: 8,
     require: true,
     //unique: true
-},
+  },
 
-important: Boolean
+  important: Boolean
 })
 
 personSchema.plugin(uniqueValidator)
